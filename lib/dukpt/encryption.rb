@@ -11,7 +11,7 @@ module DUKPT
     PEK_MASK        = 0x00000000000000FF00000000000000FF
     KSN_MASK        = 0xFFFFFFFFFFFFFFE00000
     
-    def derive_PEK(ipek, ksn)
+    def derive_key(ipek, ksn)
       ksn_current = ksn.to_i(16)
       
       # Get 8 least significant bytes
@@ -37,9 +37,15 @@ module DUKPT
       	end
       	shift_reg = shift_reg >> 1
       end
-      (curkey ^ PEK_MASK).to_s(16)
+      curkey.to_s(16).rjust(32, "0")
     end
 
+    def derive_PEK(ipek, ksn)
+      key = derive_key(ipek, ksn)
+
+      (key.to_i(16) ^ PEK_MASK).to_s(16)
+    end
+    
     def derive_IPEK(bdk, ksn)
     	ksn_cleared_count = (ksn.to_i(16) & KSN_MASK) >> 16
     	left_half_of_ipek = triple_des_encrypt(bdk, ksn_cleared_count.to_s(16)) 
