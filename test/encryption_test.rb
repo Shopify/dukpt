@@ -1,4 +1,5 @@
 require 'test/unit'
+require 'bundler/setup'
 require 'dukpt'
 
 class DUKPT::EncryptionTest < Test::Unit::TestCase
@@ -35,6 +36,12 @@ class DUKPT::EncryptionTest < Test::Unit::TestCase
     assert_equal '27f66d5244ff621eaa6f6120edeb427f', pek
   end
   
+  def test_derive_pek_counter_3
+    ksn = "FFFF9876543210E00003"
+    pek = derive_PEK('6ac292faa1315b4d858ab3a3d7d5933a', ksn)
+    assert_equal '0DF3D9422ACA561A47676D07AD6BAD05', pek
+  end
+
   def test_triple_des_decrypt
     ciphertext = "C25C1D1197D31CAA87285D59A892047426D9182EC11353C051ADD6D0F072A6CB3436560B3071FC1FD11D9F7E74886742D9BEE0CFD1EA1064C213BB55278B2F12"
     data_decrypted = triple_des_decrypt('27f66d5244ff621eaa6f6120edeb427f', ciphertext)
