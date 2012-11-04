@@ -10,6 +10,8 @@ module DUKPT
     KEY_MASK        = 0xC0C0C0C000000000C0C0C0C000000000
     PEK_MASK        = 0x00000000000000FF00000000000000FF
     KSN_MASK        = 0xFFFFFFFFFFFFFFE00000
+
+    DEC_MASK        = 0x0000000000FF00000000000000FF0000
     
     def derive_key(ipek, ksn)
       ksn_current = ksn.to_i(16)
@@ -51,8 +53,31 @@ module DUKPT
       hex_string_from_val((key.to_i(16) ^ PEK_MASK), 16)
     end
 
+    def dec_from_key(key)
+      key = key.to_i(16)
+
+      key = key ^ DEC_MASK
+
+      left = (key & MS16_MASK) >> 64
+      right = (key & LS16_MASK)
+
+      invariant_key_hex = hex_string_from_val(key, 16)
+
+      left = triple_des_encrypt(invariant_key_hex, hex_string_from_val(left, 8))
+      right = triple_des_encrypt(invariant_key_hex, hex_string_from_val(right, 8))
+
+      left = hex_string_from_val(left.to_i(16), 8)
+      right = hex_string_from_val(right.to_i(16), 8)
+
+      [left, right].join
+    end
+
     def derive_PEK(ipek, ksn)
       pek_from_key(derive_key(ipek, ksn))      
+    end
+
+    def derive_DEC(ipek, ksn)
+      dec_from_key(derive_key(ipek, ksn))
     end
 
     def derive_IPEK(bdk, ksn)
