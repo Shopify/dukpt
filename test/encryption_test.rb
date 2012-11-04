@@ -36,10 +36,46 @@ class DUKPT::EncryptionTest < Test::Unit::TestCase
     assert_equal '27f66d5244ff621eaa6f6120edeb427f', pek
   end
   
+  def test_derive_key_3
+    ksn = "FFFF9876543210E00003"
+    key = derive_key('6ac292faa1315b4d858ab3a3d7d5933a', ksn)
+    assert_equal '0DF3D9422ACA56E547676D07AD6BADFA', key.upcase
+  end
+
   def test_derive_pek_counter_3
     ksn = "FFFF9876543210E00003"
     pek = derive_PEK('6ac292faa1315b4d858ab3a3d7d5933a', ksn)
-    assert_equal '0DF3D9422ACA561A47676D07AD6BAD05', pek
+    assert_equal '0DF3D9422ACA561A47676D07AD6BAD05', pek.upcase
+  end
+
+  def test_derive_pek_counter_7
+    ksn = "FFFF9876543210E00007"
+    pek = derive_PEK('6ac292faa1315b4d858ab3a3d7d5933a', ksn)
+    assert_equal '0C8F780B7C8B492FAE84A9EB2A6CE69F', pek.upcase
+  end
+
+  def test_derive_pek_counter_F
+    ksn = "FFFF9876543210E0000F"
+    pek = derive_PEK('6ac292faa1315b4d858ab3a3d7d5933a', ksn)
+    assert_equal '93DD5B956C4878B82E453AAEFD32A555', pek.upcase
+  end
+
+  def test_derive_pek_counter_10
+    ksn = "FFFF9876543210E00010"
+    pek = derive_PEK('6ac292faa1315b4d858ab3a3d7d5933a', ksn)
+    assert_equal '59598DCBD9BD943F94165CE453585FA8', pek.upcase
+  end
+
+  def test_derive_pek_counter_13
+    ksn = "FFFF9876543210E00013"
+    pek = derive_PEK('6ac292faa1315b4d858ab3a3d7d5933a', ksn)
+    assert_equal 'C3DF489FDF11534BF03DE97C27DC4CD0', pek.upcase
+  end
+
+def test_derive_pek_counter_EFF800
+    ksn = "FFFF9876543210EFF800"
+    pek = derive_PEK('6ac292faa1315b4d858ab3a3d7d5933a', ksn)
+    assert_equal 'F9CDFEBF4F5B1D61B3EC12454527E189', pek.upcase
   end
 
   def test_triple_des_decrypt
