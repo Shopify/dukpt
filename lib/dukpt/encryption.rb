@@ -11,14 +11,14 @@ module DUKPT
     PEK_MASK        = 0x00000000000000FF00000000000000FF
     KSN_MASK        = 0xFFFFFFFFFFFFFFE00000
     
-    def derive_PEK(ipek, ksn)
+    def derive_key(ipek, ksn)
       ksn_current = ksn.to_i(16)
       
       # Get 8 least significant bytes
       ksn_reg = ksn_current & LS16_MASK
 
       # Clear the 21 counter bits
-      reg_8 = ksn_reg & REG8_MASK
+      ksn_reg = ksn_reg & REG8_MASK
       
       # Grab the 21 counter bits
       reg_3 = ksn_current & REG3_MASK
@@ -26,25 +26,40 @@ module DUKPT
       
       #Initialize "curkey" to be the derived "ipek"
       curkey = ipek.to_i(16)
-      
       while (shift_reg > 0)
       	if shift_reg & reg_3 > 0
-      	  reg_8 = shift_reg | reg_8
-      	  reg_8a = encrypt_register(curkey, reg_8)
-      		curkey = curkey ^ KEY_MASK
-      		reg_8b = encrypt_register(curkey, reg_8)      		
-      		curkey = [reg_8b.to_s(16), reg_8a.to_s(16)].join.to_i(16)
+      	  ksn_reg = shift_reg | ksn_reg          
+          curkey = keygen(curkey, ksn_reg)
       	end
       	shift_reg = shift_reg >> 1
       end
-      (curkey ^ PEK_MASK).to_s(16)
+      hex_string_from_val(curkey, 16)
+    end
+
+    def keygen(key, ksn)
+      cr1 = ksn
+      cr2 = encrypt_register(key, cr1)      
+      
+      key2 = key ^ KEY_MASK
+      
+      cr1 = encrypt_register(key2, cr1)
+
+      [hex_string_from_val(cr1, 8), hex_string_from_val(cr2, 8)].join.to_i(16)      
+    end
+
+    def pek_from_key(key)
+      hex_string_from_val((key.to_i(16) ^ PEK_MASK), 16)
+    end
+
+    def derive_PEK(ipek, ksn)
+      pek_from_key(derive_key(ipek, ksn))      
     end
 
     def derive_IPEK(bdk, ksn)
     	ksn_cleared_count = (ksn.to_i(16) & KSN_MASK) >> 16
-    	left_half_of_ipek = triple_des_encrypt(bdk, ksn_cleared_count.to_s(16)) 
+    	left_half_of_ipek = triple_des_encrypt(bdk, hex_string_from_val(ksn_cleared_count, 8)) 
     	xor_base_derivation_key = bdk.to_i(16) ^ KEY_MASK
-    	right_half_of_ipek = triple_des_encrypt(xor_base_derivation_key.to_s(16), ksn_cleared_count.to_s(16))
+    	right_half_of_ipek = triple_des_encrypt(hex_string_from_val(xor_base_derivation_key, 8), hex_string_from_val(ksn_cleared_count, 8))
     	ipek_derived = left_half_of_ipek + right_half_of_ipek
     end
     
@@ -62,12 +77,18 @@ module DUKPT
     
     private
     
+    def hex_string_from_val val, bytes
+      val.to_s(16).rjust(bytes * 2, "0")
+    end
     def encrypt_register(curkey, reg_8)
-      left_key_half = curkey & MS16_MASK
+      left_key_half = (curkey & MS16_MASK) >> 64
   	  right_key_half = curkey & LS16_MASK
+
   		message = right_key_half ^ reg_8
-  		ciphertext = des_encrypt(left_key_half.to_s(16), message.to_s(16)).to_i(16)
-  		right_key_half ^ ciphertext
+  		ciphertext = des_encrypt(hex_string_from_val(left_key_half, 8), hex_string_from_val(message, 8)).to_i(16)
+  		result = right_key_half ^ ciphertext
+
+      result
     end
     
     def openssl_encrypt(cipher_type, key, message, is_encrypt)
