@@ -88,11 +88,11 @@ module DUKPT
     private
 
     def cipher_type_des
-      @cipher_type_des || 'des-cbc'
+      @cipher_type_des || "des-cbc"
     end
 
     def cipher_type_tdes
-      @cipher_type_tdes || 'des-ede-cbc'
+      @cipher_type_tdes || "des-ede-cbc"
     end
     
     def hex_string_from_val val, bytes
