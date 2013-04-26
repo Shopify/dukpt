@@ -3,12 +3,12 @@ module DUKPT
     include Encryption
     
     attr_reader :bdk
-    
+
     def initialize(bdk, mode=nil)
       @bdk = bdk
-      cipher_mode = mode ? 'cbc' : mode
+      self.cipher_mode = mode.nil? ? 'cbc' : mode
     end
-    
+
     def decrypt(cryptogram, ksn)
       ipek = derive_IPEK(bdk, ksn)
       pek = derive_PEK(ipek, ksn)
