@@ -22,16 +22,6 @@ module DUKPT
         @cipher_type_tdes = "des-ede-cbc"
       end
     end
-    
-    def cipher_mode=(cipher_type)
-      if cipher_type == "ecb"
-        @cipher_type_des = "des-ecb"
-        @cipher_type_tdes = "des-ede"
-      else
-        @cipher_type_des = "des-cbc"
-        @cipher_type_tdes = "des-ede-cbc"
-      end
-    end
 
     def derive_key(ipek, ksn)
       ksn_current = ksn.to_i(16)
