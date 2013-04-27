@@ -97,6 +97,11 @@ def test_derive_pek_counter_EFF800
     assert_equal expected, [data_decrypted].pack('H*')
   end
     
+  def test_cipher_mode_ecb
+    self.cipher_mode = "ecb"
+    assert_equal cipher_type_des, "des-ecb"
+    assert_equal cipher_type_tdes, "des-ede"
+  end
 
   def test_dek_from_key 
     key = "27F66D5244FF62E1AA6F6120EDEB4280"
@@ -109,6 +114,5 @@ def test_derive_pek_counter_EFF800
     dek = derive_DEK('6ac292faa1315b4d858ab3a3d7d5933a', ksn)
     assert_equal '44893E3434ABDD6A817CE2841825E1FD', dek.upcase
   end
-
 
 end
