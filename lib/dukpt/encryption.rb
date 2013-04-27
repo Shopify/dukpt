@@ -23,6 +23,16 @@ module DUKPT
       end
     end
     
+    def cipher_mode=(cipher_type)
+      if cipher_type == "ecb"
+        @cipher_type_des = "des-ecb"
+        @cipher_type_tdes = "des-ede"
+      else
+        @cipher_type_des = "des-cbc"
+        @cipher_type_tdes = "des-ede-cbc"
+      end
+    end
+
     def derive_key(ipek, ksn)
       ksn_current = ksn.to_i(16)
       
@@ -98,16 +108,16 @@ module DUKPT
     	ipek_derived = left_half_of_ipek + right_half_of_ipek
     end
     
+    def aes_decrypt(key, message)
+      openssl_encrypt("aes-128-cbc", key, message, false)
+    end
+    
     def triple_des_decrypt(key, message)
     	openssl_encrypt(cipher_type_tdes, key, message, false)
     end
     
     def triple_des_encrypt(key, message)
     	openssl_encrypt(cipher_type_tdes, key, message, true)
-    end
-    
-    def aes_decrypt(key, message)
-      openssl_encrypt("aes-128-cbc", key, message, false)
     end
 
     def des_encrypt(key, message)
@@ -140,6 +150,8 @@ module DUKPT
     end
     
     def openssl_encrypt(cipher_type, key, message, is_encrypt)
+      # puts "encrypt"
+      # puts cipher_type
     	cipher = OpenSSL::Cipher::Cipher::new(cipher_type)
     	is_encrypt ? cipher.encrypt : cipher.decrypt
     	cipher.padding = 0
