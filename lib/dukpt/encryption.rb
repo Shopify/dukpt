@@ -140,8 +140,6 @@ module DUKPT
     end
     
     def openssl_encrypt(cipher_type, key, message, is_encrypt)
-      # puts "encrypt"
-      # puts cipher_type
     	cipher = OpenSSL::Cipher::Cipher::new(cipher_type)
     	is_encrypt ? cipher.encrypt : cipher.decrypt
     	cipher.padding = 0
