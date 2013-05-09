@@ -3,8 +3,10 @@ module DUKPT
     include Encryption
     
     attr_reader :bdk
-    def initialize(bdk)
+
+    def initialize(bdk, mode=nil)
       @bdk = bdk
+      self.cipher_mode = mode.nil? ? 'cbc' : mode
     end
 
     def decrypt(cryptogram, ksn)

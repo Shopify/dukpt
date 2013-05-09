@@ -20,6 +20,9 @@ Or install it yourself as:
 
     # Instantiate a decrypter with your base derivation key (BDK)
     decrypter = DUKPT::Decrypter.new("0123456789ABCDEFFEDCBA9876543210")
+
+    # You can specify whether you want to use "ecb" cipher mode if needed. The default is "cbc".
+    decrypter = DUKPT::Decrypter.new("0123456789ABCDEFFEDCBA9876543210", "ecb")
   
     # Pass the ciphertext and the current Key Serial Number (KSN), as hex encoded strings, to the decryptor to get back the plaintext
     ksn = "FFFF9876543210E00008"

@@ -10,9 +10,18 @@ module DUKPT
     KEY_MASK        = 0xC0C0C0C000000000C0C0C0C000000000
     PEK_MASK        = 0x00000000000000FF00000000000000FF
     KSN_MASK        = 0xFFFFFFFFFFFFFFE00000
+    DEK_MASK        = 0x0000000000FF00000000000000FF0000 # Used by IDTECH reader
 
-    DEC_MASK        = 0x0000000000FF00000000000000FF0000
-    
+    def cipher_mode=(cipher_type)
+      if cipher_type == "ecb"
+        @cipher_type_des = "des-ecb"
+        @cipher_type_tdes = "des-ede"
+      else
+        @cipher_type_des = "des-cbc"
+        @cipher_type_tdes = "des-ede-cbc"
+      end
+    end
+
     def derive_key(ipek, ksn)
       ksn_current = ksn.to_i(16)
       
@@ -56,7 +65,7 @@ module DUKPT
     def dek_from_key(key)
       key = key.to_i(16)
 
-      key = key ^ DEC_MASK
+      key = key ^ DEK_MASK
 
       left = (key & MS16_MASK) >> 64
       right = (key & LS16_MASK)
@@ -88,27 +97,36 @@ module DUKPT
     	ipek_derived = left_half_of_ipek + right_half_of_ipek
     end
     
-    def triple_des_decrypt(key, message)
-    	openssl_encrypt("des-ede-cbc", key, message, false)
-    end
-    
-    def triple_des_encrypt(key, message)
-    	openssl_encrypt("des-ede-cbc", key, message, true)
-    end
-    
     def aes_decrypt(key, message)
       openssl_encrypt("aes-128-cbc", key, message, false)
     end
+    
+    def triple_des_decrypt(key, message)
+    	openssl_encrypt(cipher_type_tdes, key, message, false)
+    end
+    
+    def triple_des_encrypt(key, message)
+    	openssl_encrypt(cipher_type_tdes, key, message, true)
+    end
 
     def des_encrypt(key, message)
-    	openssl_encrypt("des-cbc", key, message, true)
+    	openssl_encrypt(cipher_type_des, key, message, true)
     end
     
     private
+
+    def cipher_type_des
+      @cipher_type_des || "des-cbc"
+    end
+
+    def cipher_type_tdes
+      @cipher_type_tdes || "des-ede-cbc"
+    end
     
     def hex_string_from_val val, bytes
       val.to_s(16).rjust(bytes * 2, "0")
     end
+
     def encrypt_register(curkey, reg_8)
       left_key_half = (curkey & MS16_MASK) >> 64
   	  right_key_half = curkey & LS16_MASK
