@@ -10,8 +10,7 @@ module DUKPT
     KEY_MASK        = 0xC0C0C0C000000000C0C0C0C000000000
     PEK_MASK        = 0x00000000000000FF00000000000000FF
     KSN_MASK        = 0xFFFFFFFFFFFFFFE00000
-    # IDTECH Defines
-    DEC_MASK        = 0x0000000000FF00000000000000FF0000
+    DEK_MASK        = 0x0000000000FF00000000000000FF0000 # Used by IDTECH reader
 
     def cipher_mode=(cipher_type)
       if cipher_type == "ecb"
@@ -66,7 +65,7 @@ module DUKPT
     def dek_from_key(key)
       key = key.to_i(16)
 
-      key = key ^ DEC_MASK
+      key = key ^ DEK_MASK
 
       left = (key & MS16_MASK) >> 64
       right = (key & LS16_MASK)
