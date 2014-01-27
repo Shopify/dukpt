@@ -14,4 +14,6 @@ Gem::Specification.new do |gem|
   gem.name          = "dukpt"
   gem.require_paths = ["lib"]
   gem.version       = DUKPT::VERSION
+
+  gem.add_development_dependency('rake')
 end
