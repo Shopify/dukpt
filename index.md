@@ -1,3 +1,7 @@
+---
+layout: index
+---
+
 # DUKPT
 
 This library implements a decrypter for ciphertext originating from a device using a Derived Unique Key Per Transaction (DUKPT) scheme.
