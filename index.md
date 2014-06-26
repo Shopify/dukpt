@@ -2,10 +2,6 @@
 layout: index
 ---
 
-# DUKPT
-
-This library implements a decrypter for ciphertext originating from a device using a Derived Unique Key Per Transaction (DUKPT) scheme.
-
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -41,3 +37,7 @@ Or install it yourself as:
 3. Commit your changes (`git commit -am 'Added some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
+
+## License
+
+Unless otherwise noted, all code is released under the [MIT-LICENSE](http://opensource.org/licenses/MIT).
