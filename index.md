@@ -40,4 +40,4 @@ Or install it yourself as:
 
 ## License
 
-Unless otherwise noted, all code is released under the [MIT-LICENSE](http://opensource.org/licenses/MIT).
+Copyright (c) 2012 Shopify. Released under the [MIT-LICENSE](http://opensource.org/licenses/MIT).
