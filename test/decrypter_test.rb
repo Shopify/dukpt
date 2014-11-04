@@ -12,6 +12,17 @@ class DUKPT::DecrypterTest < Test::Unit::TestCase
     
     decrypter = DUKPT::Decrypter.new(bdk, "cbc")
     assert_equal plaintext, decrypter.decrypt(ciphertext, ksn)
+    assert_equal plaintext, decrypter.decrypt_pin_block(ciphertext, ksn)
+  end
+
+    def test_decrypt_data_block
+    bdk = "0123456789ABCDEFFEDCBA9876543210"
+    ksn = "FFFF01040DA058E00001"
+    ciphertext = "85A8A7F9390FD19EABC40B5D624190287D729923D9EDAFE9F24773388A9A1BEF"
+    plaintext = ["5A08476173900101001057114761739001010010D15122011143878089000000"].pack("H*")
+    
+    decrypter = DUKPT::Decrypter.new(bdk, "cbc")
+    assert_equal plaintext, decrypter.decrypt_data_block(ciphertext, ksn)
   end
   
 end
