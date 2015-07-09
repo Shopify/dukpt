@@ -12,10 +12,9 @@ class DUKPT::DecrypterTest < Test::Unit::TestCase
     
     decrypter = DUKPT::Decrypter.new(bdk, "cbc")
     assert_equal plaintext, decrypter.decrypt(ciphertext, ksn)
-    assert_equal plaintext, decrypter.decrypt_pin_block(ciphertext, ksn)
   end
 
-    def test_decrypt_data_block
+  def test_decrypt_data_block
     bdk = "0123456789ABCDEFFEDCBA9876543210"
     ksn = "FFFF01040DA058E00001"
     ciphertext = "85A8A7F9390FD19EABC40B5D624190287D729923D9EDAFE9F24773388A9A1BEF"
@@ -24,5 +23,27 @@ class DUKPT::DecrypterTest < Test::Unit::TestCase
     decrypter = DUKPT::Decrypter.new(bdk, "cbc")
     assert_equal plaintext, decrypter.decrypt_data_block(ciphertext, ksn)
   end
+
+  def test_decrypt_pin
+    bdk = "0123456789ABCDEFFEDCBA9876543210"
+    ksn = "F8765432108D12400014"
+    ciphertext = "129C4FC2537BB63E"
+    pan = "5413330089601109"
+    plaintext_pin = "4315"
+    
+    decrypter = DUKPT::Decrypter.new(bdk)
+    assert_equal plaintext_pin, decrypter.decrypt_pin(ciphertext, ksn, pan)
+  end
   
+  def test_decrypt_pin_with_padded_pan
+    bdk = "0123456789ABCDEFFEDCBA9876543210"
+    ksn = "F8765432108D12400011"
+    ciphertext = "8C3169A2ABC1632F"
+    pan = "6799998900000060919F"
+    plaintext_pin = "4315"
+    
+    decrypter = DUKPT::Decrypter.new(bdk)
+    assert_equal plaintext_pin, decrypter.decrypt_pin(ciphertext, ksn, pan)
+  end
+
 end
