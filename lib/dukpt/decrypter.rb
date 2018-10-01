@@ -10,14 +10,14 @@ module DUKPT
     end
 
     def decrypt(cryptogram, ksn)
+      decrypt_pin_block(cryptogram, ksn)
+    end
+
+    def decrypt_pin_block(cryptogram, ksn)
       ipek = derive_IPEK(bdk, ksn)
       pek = derive_PEK(ipek, ksn)
       decrypted_cryptogram = triple_des_decrypt(pek, cryptogram)
       [decrypted_cryptogram].pack('H*')
-    end
-
-    def decrypt_pin_block(cryptogram, ksn)
-      decrypt(cryptogram, ksn)
     end
 
     def decrypt_pin(cryptogram, ksn, pan)

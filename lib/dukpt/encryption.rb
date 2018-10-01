@@ -94,7 +94,7 @@ module DUKPT
     	left_half_of_ipek = triple_des_encrypt(bdk, hex_string_from_val(ksn_cleared_count, 8)) 
     	xor_base_derivation_key = bdk.to_i(16) ^ KEY_MASK
     	right_half_of_ipek = triple_des_encrypt(hex_string_from_val(xor_base_derivation_key, 8), hex_string_from_val(ksn_cleared_count, 8))
-    	ipek_derived = left_half_of_ipek + right_half_of_ipek
+    	left_half_of_ipek + right_half_of_ipek
     end
     
     def aes_decrypt(key, message)
@@ -116,11 +116,11 @@ module DUKPT
     private
 
     def cipher_type_des
-      @cipher_type_des || "des-cbc"
+      @cipher_type_des ||= "des-cbc"
     end
 
     def cipher_type_tdes
-      @cipher_type_tdes || "des-ede-cbc"
+      @cipher_type_tdes ||= "des-ede-cbc"
     end
     
     def hex_string_from_val val, bytes
