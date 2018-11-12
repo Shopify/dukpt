@@ -72,7 +72,7 @@ class DUKPT::EncryptionTest < Test::Unit::TestCase
     assert_equal 'C3DF489FDF11534BF03DE97C27DC4CD0', pek.upcase
   end
 
-def test_derive_pek_counter_EFF800
+  def test_derive_pek_counter_EFF800
     ksn = "FFFF9876543210EFF800"
     pek = derive_PEK('6ac292faa1315b4d858ab3a3d7d5933a', ksn)
     assert_equal 'F9CDFEBF4F5B1D61B3EC12454527E189', pek.upcase
