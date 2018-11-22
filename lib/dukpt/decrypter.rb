@@ -1,7 +1,7 @@
 module DUKPT
   class Decrypter
     include Encryption
-    
+
     attr_reader :bdk
 
     def initialize(bdk, mode=nil)
@@ -30,8 +30,8 @@ module DUKPT
         pin_count = coded_pin[1].to_i
         coded_pin[2,pin_count]
       elsif block_format == "1"
-        pin_count = decrypted_block[1]
-        coded_pin[2,pin_count]
+        pin_count = decrypted_block[1].to_i
+        decrypted_block[2,pin_count]
       end
     end
 

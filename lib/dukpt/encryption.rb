@@ -2,14 +2,14 @@ require 'openssl'
 
 module DUKPT
   module Encryption
-    REG3_MASK       = 0x1FFFFF
-    SHIFT_REG_MASK  = 0x100000
-    REG8_MASK       = 0xFFFFFFFFFFE00000
+    REG3_MASK       = 0x000000000000000000000000001FFFFF
+    SHIFT_REG_MASK  = 0x00000000000000000000000000100000
+    REG8_MASK       = 0x0000000000000000FFFFFFFFFFE00000
     LS16_MASK       = 0x0000000000000000FFFFFFFFFFFFFFFF
     MS16_MASK       = 0xFFFFFFFFFFFFFFFF0000000000000000
     KEY_MASK        = 0xC0C0C0C000000000C0C0C0C000000000
     PEK_MASK        = 0x00000000000000FF00000000000000FF
-    KSN_MASK        = 0xFFFFFFFFFFFFFFE00000
+    KSN_MASK        = 0x000000000000FFFFFFFFFFFFFFE00000
     DEK_MASK        = 0x0000000000FF00000000000000FF0000 # Used by IDTECH reader
 
     def cipher_mode=(cipher_type)
@@ -22,47 +22,46 @@ module DUKPT
       end
     end
 
-    def derive_key(ipek, ksn)
-      ksn_current = ksn.to_i(16)
-      
-      # Get 8 least significant bytes
-      ksn_reg = ksn_current & LS16_MASK
-
-      # Clear the 21 counter bits
-      ksn_reg = ksn_reg & REG8_MASK
-      
-      # Grab the 21 counter bits
-      reg_3 = ksn_current & REG3_MASK
-      shift_reg = SHIFT_REG_MASK
-      
+    def derive_pek_from_ipek(ipek, ksn)
       #Initialize "curkey" to be the derived "ipek"
-      curkey = ipek.to_i(16)
-      while (shift_reg > 0)
-      	if shift_reg & reg_3 > 0
-      	  ksn_reg = shift_reg | ksn_reg          
-          curkey = keygen(curkey, ksn_reg)
-      	end
-      	shift_reg = shift_reg >> 1
+      initial_key = ipek.to_i(16)
+
+      key_serial_number = ksn.to_i(16)
+      serial_number = key_serial_number & REG8_MASK
+      transaction_number = key_serial_number & REG3_MASK
+
+      create_key(initial_key, serial_number, transaction_number)
+    end
+
+    def create_key(current_key, serial_number, transaction_number)
+      shift_number = SHIFT_REG_MASK
+      encrypted_serial_number = serial_number
+      while (shift_number > 0)
+        if shift_number & transaction_number > 0
+          encrypted_serial_number = shift_number | encrypted_serial_number
+          current_key = keygen(current_key, encrypted_serial_number)
+        end
+        shift_number = shift_number >> 1
       end
-      hex_string_from_val(curkey, 16)
+      hex_string_from_val(current_key, 16)
     end
 
     def keygen(key, ksn)
       cr1 = ksn
-      cr2 = encrypt_register(key, cr1)      
-      
+      cr2 = encrypt_register(key, cr1)
+
       key2 = key ^ KEY_MASK
-      
+
       cr1 = encrypt_register(key2, cr1)
 
-      [hex_string_from_val(cr1, 8), hex_string_from_val(cr2, 8)].join.to_i(16)      
+      [hex_string_from_val(cr1, 8), hex_string_from_val(cr2, 8)].join.to_i(16)
     end
 
     def pek_from_key(key)
       hex_string_from_val((key.to_i(16) ^ PEK_MASK), 16)
     end
 
-    def dek_from_key(key)
+    def derive_dek_from_pek(key)
       key = key.to_i(16)
 
       key = key ^ DEK_MASK
@@ -82,29 +81,29 @@ module DUKPT
     end
 
     def derive_PEK(ipek, ksn)
-      pek_from_key(derive_key(ipek, ksn))      
+      pek_from_key(derive_pek_from_ipek(ipek, ksn))
     end
 
     def derive_DEK(ipek, ksn)
-      dek_from_key(derive_key(ipek, ksn))
+      derive_dek_from_pek(derive_pek_from_ipek(ipek, ksn))
     end
 
     def derive_IPEK(bdk, ksn)
     	ksn_cleared_count = (ksn.to_i(16) & KSN_MASK) >> 16
-    	left_half_of_ipek = triple_des_encrypt(bdk, hex_string_from_val(ksn_cleared_count, 8)) 
+    	left_half_of_ipek = triple_des_encrypt(bdk, hex_string_from_val(ksn_cleared_count, 8))
     	xor_base_derivation_key = bdk.to_i(16) ^ KEY_MASK
     	right_half_of_ipek = triple_des_encrypt(hex_string_from_val(xor_base_derivation_key, 8), hex_string_from_val(ksn_cleared_count, 8))
     	ipek_derived = left_half_of_ipek + right_half_of_ipek
     end
-    
+
     def aes_decrypt(key, message)
       openssl_encrypt("aes-128-cbc", key, message, false)
     end
-    
+
     def triple_des_decrypt(key, message)
     	openssl_encrypt(cipher_type_tdes, key, message, false)
     end
-    
+
     def triple_des_encrypt(key, message)
     	openssl_encrypt(cipher_type_tdes, key, message, true)
     end
@@ -112,7 +111,7 @@ module DUKPT
     def des_encrypt(key, message)
     	openssl_encrypt(cipher_type_des, key, message, true)
     end
-    
+
     private
 
     def cipher_type_des
@@ -122,7 +121,7 @@ module DUKPT
     def cipher_type_tdes
       @cipher_type_tdes || "des-ede-cbc"
     end
-    
+
     def hex_string_from_val val, bytes
       val.to_s(16).rjust(bytes * 2, "0")
     end
@@ -137,7 +136,7 @@ module DUKPT
 
       result
     end
-    
+
     def openssl_encrypt(cipher_type, key, message, is_encrypt)
       cipher = OpenSSL::Cipher.new(cipher_type)
     	is_encrypt ? cipher.encrypt : cipher.decrypt
