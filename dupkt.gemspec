@@ -16,4 +16,6 @@ Gem::Specification.new do |gem|
   gem.version       = DUKPT::VERSION
 
   gem.metadata['allowed_push_host'] = 'https://rubygems.org'
+
+  gem.add_development_dependency("rake")
 end
