@@ -14,4 +14,6 @@ Gem::Specification.new do |gem|
   gem.name          = "dukpt"
   gem.require_paths = ["lib"]
   gem.version       = DUKPT::VERSION
+
+  gem.metadata['allowed_push_host'] = 'https://rubygems.org'
 end
