@@ -15,6 +15,8 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = DUKPT::VERSION
 
+  gem.required_ruby_version = '>= 2.6.0'
+
   gem.metadata['allowed_push_host'] = 'https://rubygems.org'
 
   gem.add_development_dependency("rake")
