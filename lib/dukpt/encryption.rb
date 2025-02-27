@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'openssl'
 
 module DUKPT
@@ -143,7 +145,7 @@ module DUKPT
     	is_encrypt ? cipher.encrypt : cipher.decrypt
     	cipher.padding = 0
     	cipher.key = [key].pack('H*')
-    	cipher_result = ""
+    	cipher_result = +""
     	cipher_result << cipher.update([message].pack('H*'))
     	cipher_result << cipher.final
     	cipher_result.unpack('H*')[0]
