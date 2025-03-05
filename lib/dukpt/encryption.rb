@@ -95,7 +95,7 @@ module DUKPT
     	ksn_cleared_count = (ksn.to_i(16) & KSN_MASK) >> 16
     	left_half_of_ipek = triple_des_encrypt(bdk, hex_string_from_val(ksn_cleared_count, 8)) 
     	xor_base_derivation_key = bdk.to_i(16) ^ KEY_MASK
-    	right_half_of_ipek = triple_des_encrypt(hex_string_from_val(xor_base_derivation_key, 8), hex_string_from_val(ksn_cleared_count, 8))
+    	right_half_of_ipek = triple_des_encrypt(hex_string_from_val(xor_base_derivation_key, 16), hex_string_from_val(ksn_cleared_count, 8))
     	ipek_derived = left_half_of_ipek + right_half_of_ipek
     end
     
